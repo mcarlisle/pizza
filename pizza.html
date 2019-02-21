@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Pizza Area Comparatron</title>
+
+    <!-- style -->
+    <link rel="stylesheet" href="TangleKit/style.css" type="text/css">
+	<!-- Tangle -->
+	<script type="text/javascript" src="Tangle.js"></script>
+    <!-- TangleKit -->
+    <link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
+    <script type="text/javascript" src="TangleKit/mootools.js"></script>
+    <script type="text/javascript" src="TangleKit/sprintf.js"></script>
+    <script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
+    <script type="text/javascript" src="TangleKit/TangleKit.js"></script>
+
+	<!-- example -->
+	<!-- edited from Project/LadderPlotViews.js -->
+	<!-- thanks to http://worrydream.com/LadderOfAbstraction/ -->
+	<script type="text/javascript">
+
+//====================================================================================
+Tangle.classes.LadderProcessing = new Class({
+    initialize: function (hostElement, options, tangle) {
+        this.width = 380;  this.height = 305;
+    
+        this.canvas = (new Element("canvas", { width:this.width, height:this.height })).inject(hostElement);
+        this.canvas.setStyles({ left:0, top:0, border:"1px solid #ccc" });
+    },
+    update: function (element, r, g, b, x, y, w, h, i0, k, dx, dy) {
+        k = k.limit(i0, i0 + 1000);
+
+        var ctx = this.canvas.getContext("2d");
+        ctx.clearRect(0,0,this.width,this.height);
+        
+        for (var i = i0; i < k; i++) {
+            ctx.save();
+            
+            j = i % 5;
+            m = Math.floor(i / 5);
+            ctx.translate(x + j*dx, y + m*dy);
+            
+            ctx.fillStyle = sprintf("rgba(%d,%d,%d,1)", r.limit(0,255).round(), g.limit(0,255).round(), b.limit(0,255).round());
+            ctx.scale(w,h);
+            ctx.beginPath();
+            ctx.arc(0,0,1,0,2*Math.PI,false);
+            ctx.fill();
+    
+            ctx.restore();
+        }
+
+    }    
+});
+//====================================================================================
+
+		function plural(x, s) { // yes, hacky. i'm using it only for the word "pizza".
+			var span = document.getElementById(s);
+			if(x>1) {
+				span.textContent = span.attributes.getNamedItem("word").value + "s";			
+			} else {
+				span.textContent = span.attributes.getNamedItem("word").value;
+			}			
+		} // end plural
+
+		function setUpTangle() {
+
+			var element = document.getElementById("pizzaExample");
+			var pizzaTangle = new Tangle(element, {
+				initialize: function() {
+					this.n  = 1;
+					this.d  = 18;  this.rad = this.d / 2;
+					this.c  = 1;	// crust width
+					
+            		this.r = 169;  this.g = 99; this.b = 49;  // brown crust
+            		this.r2 = 200; this.g2 = 0; this.b2 = 0;  // red sauce
+
+            		this.i0 = 0;  this.k  = this.n;
+		            this.x  = 40; this.y  = 40;
+            		this.dx = 75; this.dy = 75;
+            		this.w  = this.d;  this.h = this.w;  // circles
+            		this.w2 = this.d - this.c; this.h2 = this.w2; // inner circles
+				},
+				update: function() {
+				    plural(this.n, "pizza1");
+					this.rad  = this.d / 2;
+					this.innerR = Math.max(this.rad - this.c, 0);
+					this.fullA  = this.n * Math.PI * this.rad * this.rad;
+					this.innerA = this.n * Math.PI * this.innerR * this.innerR;
+					this.crustA = this.fullA - this.innerA;
+					this.crustpct = 100 * this.crustA / this.fullA;
+
+					this.k  = this.n;
+            		this.w  = 1.2*this.d;  
+            		this.h  = this.w;
+            		this.w2 = 1.2*Math.max(this.d - 2*this.c, 0); // inner circles
+					this.h2 = this.w2;
+				}
+			});  // end pizzaTangle
+
+			var element2 = document.getElementById("pizzaExample2");
+			var pizzaTangle = new Tangle(element2, {
+				initialize: function() {
+					this.n  = 2;
+					this.d  = 14;  this.rad = this.d / 2;
+					this.c  = 1;	// crust width
+					
+            		this.r = 139;  this.g = 69; this.b = 19;  // darker crust
+            		this.r2 = 255; this.g2 = 0; this.b2 = 0;  // lighter sauce
+
+            		this.i0 = 0;  this.k  = this.n;
+		            this.x  = 40; this.y  = 40;
+            		this.dx = 75; this.dy = 75;
+            		this.w  = this.d;  this.h = this.w;  // circles
+            		this.w2 = this.d - this.c; this.h2 = this.w2; // inner circles
+				},
+				update: function() {
+				    plural(this.n, "pizza2");
+					this.rad  = this.d / 2;
+					this.innerR = Math.max(this.rad - this.c, 0);
+					this.fullA  = this.n * Math.PI * this.rad * this.rad;
+					this.innerA = this.n * Math.PI * this.innerR * this.innerR;
+					this.crustA = this.fullA - this.innerA;
+					this.crustpct = 100 * this.crustA / this.fullA;
+
+					this.k  = this.n;
+            		this.w  = 1.2*this.d;  
+            		this.h  = this.w;
+            		this.w2 = 1.2*Math.max(this.d - 2*this.c, 0); // inner circles
+					this.h2 = this.w2;
+				}
+			});  // end pizzaTangle2
+
+		}  // end setupTangle
+		</script>
+</head>
+
+<body onload="setUpTangle();">
+
+<div class="chapter">
+    <div class="chapterHeader"><span>Pizza Area Comparatron</span></div>
+
+	<p align="center">Which choice has more "pizza area"?</p>
+	<p align="center">(Note: making crust width larger than radius does not overlap crust.)</p>
+
+    <div class="columnLeft" id="pizzaExample">
+	<p>
+	<span data-var="n" class="TKAdjustableNumber" data-min="1" data-max="20"></span> <span id="pizza1" word="pizza"></span>, diameter <span data-var="d" class="TKAdjustableNumber" data-min="6" data-max="30" data-step="0.5" data-format="%.1f"></span> in (radius <span data-var="rad" data-format="%.2f"> in</span>),  crust width <span data-var="c" class="TKAdjustableNumber" data-min="0" data-max="15" data-step="0.25" data-format="%.2f"></span> in.
+	</p>
+	<p>
+	Total "pizza area" not counting crust: <span data-var="innerA" data-format="%.2f"> sq in</span>.
+	</p>
+	<p>
+	Total "pizza area" counting crust: <span data-var="fullA" data-format="%.2f"> sq in</span> (<span data-var="crustpct" data-format="%.2f">% crust</span>)
+	</p>
+	<p>
+		<section id="Llayers" style="position:relative; width:370; height:310px">
+		<span class="LadderProcessing" style="z-index: 1; position:absolute; left:0px; top:0px;" id="Llayer1" data-var="r g b x y w h i0 k dx dy"></span>
+		<span class="LadderProcessing" style="z-index: 2; position:absolute; left:0px; top:0px;" id="Llayer2" data-var="r2 g2 b2 x y w2 h2 i0 k dx dy"></span>
+		</section>
+	</p>
+	</div>
+
+    <div class="columnRight" id="pizzaExample2">
+	<p>
+	<span data-var="n" class="TKAdjustableNumber" data-min="1" data-max="20"></span> <span id="pizza2" word="pizza"></span>, diameter <span data-var="d" class="TKAdjustableNumber" data-min="6" data-max="30" data-step="0.5" data-format="%.1f"></span> in (radius <span data-var="rad" data-format="%.2f"> in</span>), crust width <span data-var="c" class="TKAdjustableNumber" data-min="0" data-max="15" data-step="0.25" data-format="%.2f"></span> in.
+	</p>
+	<p>
+	Total "pizza area" not counting crust: <span data-var="innerA" data-format="%.2f"> sq in</span>.
+	</p>
+	<p>
+	Total "pizza area" counting crust: <span data-var="fullA" data-format="%.2f"> sq in</span> (<span data-var="crustpct" data-format="%.2f">% crust</span>)
+	</p>
+	<p>
+		<section id="Llayers" style="position:relative; width:370; height:310px">
+		<span class="LadderProcessing" style="z-index: 1; position:absolute; left:0px; top:0px;" id="Llayer1" data-var="r g b x y w h i0 k dx dy"></span>
+		<span class="LadderProcessing" style="z-index: 2; position:absolute; left:0px; top:0px;" id="Llayer2" data-var="r2 g2 b2 x y w2 h2 i0 k dx dy"></span>
+		</section>
+	</p>
+	</div>
+</div>
+
+<div class="endOfColumns"></div>
+<p align="center">
+Pizza Area Comparatron, hacked together with <a href="http://worrydream.com/">Bret Victor's Tangle.js</a> tools
+</p>
+
+</body>
+</html>
